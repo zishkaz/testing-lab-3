@@ -1,0 +1,58 @@
+name: Java CI with Tests, JaCoCo, Allure, and SpotBugs
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x gradlew
+
+      - name: Run Tests
+        run: ./gradlew test
+
+      - name: Generate JaCoCo coverage report
+        run: ./gradlew jacocoTestReport
+
+      - name: Upload JaCoCo report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: build/reports/jacoco/test/html/
+
+      - name: Run SpotBugs analysis
+        run: ./gradlew spotbugsMain spotbugsTest
+
+      - name: Upload SpotBugs reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: spotbugs-report
+          path: build/reports/spotbugs/
+
+      - name: Generate Allure report
+        run: ./gradlew allureReport
+
+      - name: Upload Allure Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: build/allure-results
+
+      - name: Upload Allure Report
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/reports/allure-report
