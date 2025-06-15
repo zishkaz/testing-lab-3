@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'jacoco'
-    id 'io.qameta.allure' version '2.11.2'
+    id 'io.qameta.allure' version '2.12.0'
     id 'com.github.spotbugs' version '6.0.10'
 }
 
@@ -12,7 +12,18 @@ repositories {
     mavenCentral()
 }
 
+def aspectJVersion = '1.9.21'
+
+configurations {
+    agent {
+        canBeResolved = true
+        canBeConsumed = true
+    }
+}
+
+
 dependencies {
+    agent "org.aspectj:aspectjweaver:$aspectJVersion"
     implementation("io.javalin:javalin:6.4.0")
     implementation("org.slf4j:slf4j-simple:2.0.16")
     implementation("com.google.code.gson:gson:2.12.1")
@@ -23,11 +34,12 @@ dependencies {
     testImplementation("io.rest-assured:rest-assured:5.5.1")
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation("org.mockito:mockito-core:5.15.2")
-
+    testImplementation "io.qameta.allure:allure-junit5"
 }
 
 test {
     useJUnitPlatform()
+    jvmArgs = [ "-javaagent:${configurations.agent.singleFile}" ]
     finalizedBy jacocoTestReport
 }
 
@@ -39,19 +51,19 @@ jacocoTestReport {
     }
 }
 
+
 allure {
-    report {
-        version.set("2.27.0")
-    }
+    version = '2.30.0'
     adapter {
-        aspectjWeaver.set(true)
+        aspectjWeaver = true
         frameworks {
             junit5 {
-                enabled.set(true)
+                enabled = true
             }
         }
     }
 }
+
 
 def classLoader = plugins['com.github.spotbugs'].class.classLoader
 def SpotBugsEffort = classLoader.findLoadedClass( 'com.github.spotbugs.snom.Effort' )
