@@ -58,6 +58,8 @@ jobs:
           path: build/reports/allure-report
 
   deploy-allure-report:
+    environment:
+      name: github-pages
     needs: build-and-test
     runs-on: ubuntu-latest
     permissions:
