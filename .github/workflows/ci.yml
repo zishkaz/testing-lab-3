@@ -1,4 +1,4 @@
-name: Java CI with Tests, JaCoCo, Allure, and SpotBugs
+name: Run Tests
 
 on:
   push:
@@ -56,3 +56,14 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: build/reports/allure-report
+
+  deploy-allure-report:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
